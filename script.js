@@ -1,36 +1,34 @@
 import AreaChart from './AreaChart.js'
-import StackedChart from './StackedAreaChart.js'
-
-function sumHelper(sample){
-	let sum=0;
-	for ([key,value] of Object.entries(sample)){
-		if(typeof value==='object') {
-			
-		} else{
-			sum=sum+value;
-		}
-	}
-	sample.total=sum
-	return sample;
-}
+import StackedAreaChart from './StackedAreaChart.js'
 
 
 d3.csv('unemployment.csv',d3.autoType).then(data=>{
-	// update(data,type,sort);
 
-	// d3.select('#sort').on('click',()=>{
-	// 	sort=!sort
-	// 	console.log(sort)
-	// 	update(data,type,sort)
-	// })
-	// d3.select('#group-by').on('change',(event)=>{
-	// 	type=event.target.value;
-	// 	update(data,type,sort);
-	// })
-	
-	data=data.map(sumHelper)
-	achart=StackedAreaChart()
-	achart.update(data)
+	for (let i=0;i<data.length;i++){
+		var sum=0
+		for (const [key,value] of Object.entries(data[i])){
+
+			if(typeof value==='object') {
+				
+			} else{
+				sum=sum+value;
+			}
+		}
+		data[i].total=sum
+	}
+	console.log(data)
+	const stackedChart=StackedAreaChart(".chart-container1")
+	stackedChart.update(data)
+	const areaChart=AreaChart(".chart-container2")
+	areaChart.update(data)
+	areaChart.on('brushed',(range)=>{
+		stackedChart.filterByDate(range)
+	})
+	areaChart.on('brushended',(range)=>{
+		stackedChart.filterByDate([d3.min(data,d=>d.date),d3.max(data,d=>d.date)])
+	})
+
+
 	
 
 	
