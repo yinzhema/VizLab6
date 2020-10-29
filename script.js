@@ -16,15 +16,16 @@ d3.csv('unemployment.csv',d3.autoType).then(data=>{
 		}
 		data[i].total=sum
 	}
-	console.log(data)
 	const stackedChart=StackedAreaChart(".chart-container1")
 	stackedChart.update(data)
 	const areaChart=AreaChart(".chart-container2")
 	areaChart.update(data)
+	
 	areaChart.on('brushed',(range)=>{
 		stackedChart.filterByDate(range)
 	})
 	areaChart.on('brushended',(range)=>{
+		console.log('brushended')
 		stackedChart.filterByDate([d3.min(data,d=>d.date),d3.max(data,d=>d.date)])
 	})
 

@@ -30,13 +30,20 @@ export default function StackedAreaChart(container){
 		.attr('class','x-axis')
 	svg.append('g')
 		.attr('class','y-axis')
-	
+
+	svg.append("clipPath")
+		.attr("id", "clip")
+		.append("rect")
+		.attr("width", width)
+		.attr("height", height)
 	
 	const tooltip=svg.append('text')
 
 	function update(_data){
+
 		data=_data
-	const keys = selected? [selected] : data.columns.slice(1)
+		const keys = selected? [selected] : data.columns.slice(1)
+
 		var stack=d3.stack()
 			.keys(keys)
 			.order(d3.stackOrderNone)
@@ -52,15 +59,14 @@ export default function StackedAreaChart(container){
 			.y0(d=>yScale(d[0]))
 			.y1(d=>yScale(d[1]))
 
-		const areas=svg.selectAll('.area')
+		let areas=svg.selectAll('.area')
 			.data(series,d=>d.key)
-
+			
 		areas.enter()
 			.append('path')
-			.attr('d',area)
-			.merge(areas)
+			.attr('class','area')
+			.attr("clip-path", "url(#clip)")
 			.attr('fill',d=>colorScale(d.key))
-			.attr('d',area)
 			.on('mouseover',function(event,d,i){
 				tooltip.text(d.key)
 			})
@@ -75,10 +81,13 @@ export default function StackedAreaChart(container){
 				}
 				update(data)
 			})
+			.merge(areas)
+			.attr('d',area)
 
+		
 		areas.exit()
 			.remove()
-
+		
 		svg.select('.x-axis')
 			.call(xAxis)
 			.attr('transform',`translate(0,${height})`)
